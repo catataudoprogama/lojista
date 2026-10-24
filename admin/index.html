@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F5F3EE">
+<title>Painel da loja</title>
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="M14.5 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="18.5" cy="12" r="1.6" fill="currentColor"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8.5h3l1.5-2h7l1.5 2h3v10H4v-10Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="13.5" r="3.2" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+</svg>
+
+<div class="demo" id="demoBanner" hidden>
+  <p><strong>Modo demonstração.</strong> Tudo o que você mudar aqui fica só neste navegador e aparece no site da mesma pasta.</p>
+  <button type="button" class="link-btn" id="resetDemo">Restaurar exemplos</button>
+  <a class="link-btn" id="demoOffAdmin" href="?demo=0" hidden>Voltar ao painel real</a>
+</div>
+
+<!-- Entrar -->
+<section class="login" id="viewLogin" hidden>
+  <form class="login__box" id="loginForm" novalidate>
+    <p class="eyebrow">Painel da loja</p>
+    <h1>Entrar</h1>
+    <label class="lab">E-mail<input class="field" id="lEmail" type="email" autocomplete="username" inputmode="email" required></label>
+    <label class="lab">Senha<input class="field" id="lPass" type="password" autocomplete="current-password" required></label>
+    <p class="form-err" id="lErr" role="alert" hidden></p>
+    <button class="btn btn--ink btn--block" id="lBtn" type="submit">Entrar</button>
+  </form>
+</section>
+
+<!-- Painel -->
+<div id="app" hidden>
+  <header class="top" id="top">
+    <div class="top__in">
+      <strong class="top__brand" id="topBrand">Painel</strong>
+      <nav class="tabs" id="tabs" role="tablist" aria-label="Seções">
+        <button type="button" role="tab" data-tab="pecas" aria-selected="true">Peças</button>
+        <button type="button" role="tab" data-tab="loja" aria-selected="false">Loja</button>
+      </nav>
+      <div class="top__act">
+        <a class="link-btn" href="../index.html" target="_blank" rel="noopener">Ver site</a>
+        <button type="button" class="link-btn" id="logout">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- Lista de peças -->
+    <section id="tabPecas">
+      <div class="bar">
+        <input class="field" id="qList" type="search" placeholder="Buscar peça" aria-label="Buscar peça" autocomplete="off">
+        <select class="field" id="catList" aria-label="Filtrar por categoria"></select>
+        <button type="button" class="btn btn--ink" id="newBtn"><svg class="ic"><use href="#i-plus"/></svg>Nova peça</button>
+      </div>
+      <p class="muted counts" id="counts" aria-live="polite"></p>
+      <div class="plist" id="plist"></div>
+    </section>
+
+    <!-- Formulário da peça -->
+    <section id="tabForm" hidden>
+      <form id="pform" novalidate>
+        <div class="form-hd">
+          <button type="button" class="back" id="backBtn"><svg class="ic"><use href="#i-left"/></svg>Voltar</button>
+          <h2 id="formTitle">Nova peça</h2>
+        </div>
+
+        <section class="box">
+          <h3>Fotos</h3>
+          <p class="hint">A primeira foto é a capa. Use as setas para reordenar. Até 8 fotos.</p>
+          <div class="photos" id="photos"></div>
+          <input type="file" id="fileInput" accept="image/*" multiple hidden>
+        </section>
+
+        <section class="box">
+          <h3>Dados da peça</h3>
+          <label class="lab">Nome<input class="field" id="fName" type="text" maxlength="80" placeholder="Ex.: Camiseta Essencial" autocomplete="off"></label>
+          <div class="two">
+            <label class="lab">Preço<span class="money"><i>R$</i><input class="field" id="fPrice" type="text" inputmode="decimal" placeholder="0,00" autocomplete="off"></span></label>
+            <label class="lab"><span>Preço antigo <small>(opcional)</small></span><span class="money"><i>R$</i><input class="field" id="fCompare" type="text" inputmode="decimal" placeholder="0,00" autocomplete="off"></span></label>
+          </div>
+          <p class="hint" id="priceHint">Preencha o preço antigo para mostrar o desconto no site.</p>
+          <label class="lab">Categoria<input class="field" id="fCat" type="text" list="catSuggest" maxlength="40" placeholder="Ex.: Camisetas" autocomplete="off"><datalist id="catSuggest"></datalist></label>
+          <div class="lab">
+            <label for="fColor">Cores</label>
+            <div class="tags" id="colorBox"><span id="colorTags"></span><input id="fColor" type="text" maxlength="30" placeholder="Digite e toque Enter" autocomplete="off" enterkeyhint="done"></div>
+            <div class="suggest" id="colorSuggest"></div>
+          </div>
+          <label class="lab">Descrição<textarea class="field" id="fDesc" rows="4" maxlength="600" placeholder="Tecido, caimento, como usar…"></textarea></label>
+        </section>
+
+        <section class="box" id="sizesBox">
+          <h3>Tamanhos e estoque</h3>
+          <div class="presets" id="presets">
+            <button type="button" class="chip" data-preset="P,M,G,GG">P · M · G · GG</button>
+            <button type="button" class="chip" data-preset="PP,P,M,G,GG,XG">PP ao XG</button>
+            <button type="button" class="chip" data-preset="36,38,40,42,44,46">36 ao 46</button>
+            <button type="button" class="chip" data-preset="Único">Único</button>
+          </div>
+          <div id="sizeRows"></div>
+          <div class="addsize">
+            <input class="field" id="newSize" type="text" maxlength="8" placeholder="Outro tamanho" autocomplete="off" enterkeyhint="done">
+            <button type="button" class="btn btn--line" id="addSize">Adicionar</button>
+          </div>
+          <p class="stock" id="stockSum"></p>
+        </section>
+
+        <section class="box">
+          <h3>Exibição</h3>
+          <label class="switch"><input type="checkbox" id="fActive" checked><span>Mostrar no site</span></label>
+          <label class="switch"><input type="checkbox" id="fFeatured"><span>Destaque (aparece na capa)</span></label>
+        </section>
+
+        <p class="form-err" id="formErr" role="alert" hidden></p>
+        <div class="savebar">
+          <button type="button" class="btn btn--line" id="cancelBtn">Cancelar</button>
+          <button type="submit" class="btn btn--ink" id="saveBtn">Salvar peça</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Configurações da loja -->
+    <section id="tabLoja" hidden>
+      <form id="sform" novalidate>
+        <section class="box">
+          <h3>Identidade</h3>
+          <label class="lab">Nome da loja<input class="field" id="sName" type="text" maxlength="40" autocomplete="off"></label>
+          <label class="lab">Frase curta<input class="field" id="sTag" type="text" maxlength="80" placeholder="Ex.: Básicos com caimento certo" autocomplete="off"></label>
+          <div class="lab"><span>Logo <small>(opcional; sem logo, o nome vira a marca)</small></span>
+            <div class="imgpick" id="logoPick"></div>
+          </div>
+        </section>
+        <section class="box">
+          <h3>Contato</h3>
+          <label class="lab">WhatsApp da loja<input class="field" id="sWa" type="tel" inputmode="tel" placeholder="(73) 99999-9999" autocomplete="off"></label>
+          <p class="hint">Os pedidos chegam neste número. Sem ele, o botão do site mostra só a mensagem pronta.</p>
+          <label class="lab"><span>Instagram <small>(sem @)</small></span><input class="field" id="sIg" type="text" maxlength="40" autocomplete="off"></label>
+          <label class="lab">Endereço<input class="field" id="sAddr" type="text" maxlength="120" autocomplete="off"></label>
+          <label class="lab">Horário de atendimento<input class="field" id="sHours" type="text" maxlength="120" placeholder="Ex.: Seg a sáb, 9h às 18h" autocomplete="off"></label>
+        </section>
+        <section class="box">
+          <h3>Topo do site</h3>
+          <label class="lab"><span>Aviso na faixa preta <small>(deixe vazio para esconder)</small></span><input class="field" id="sAnn" type="text" maxlength="100" autocomplete="off"></label>
+          <label class="lab"><span>Frete grátis a partir de <small>(deixe vazio para desligar)</small></span><span class="money"><i>R$</i><input class="field" id="sShip" type="text" inputmode="decimal" placeholder="0,00" autocomplete="off"></span></label>
+          <label class="lab">Título da capa<input class="field" id="sHero" type="text" maxlength="60" autocomplete="off"></label>
+          <label class="lab">Texto da capa<input class="field" id="sHeroSub" type="text" maxlength="140" autocomplete="off"></label>
+          <div class="lab"><span>Foto da capa <small>(sem foto, o site usa suas peças em destaque)</small></span>
+            <div class="imgpick" id="heroPick"></div>
+          </div>
+        </section>
+        <p class="form-err" id="sErr" role="alert" hidden></p>
+        <div class="savebar"><button type="submit" class="btn btn--ink" id="sBtn">Salvar configurações</button></div>
+      </form>
+    </section>
+
+  </main>
+</div>
+
+<dialog class="modal" id="confirm" aria-labelledby="confirmT">
+  <div class="modal__in">
+    <h2 id="confirmT">Excluir peça?</h2>
+    <p class="muted" id="confirmP"></p>
+    <div class="modal__act">
+      <button type="button" class="btn btn--line" id="confirmNo">Cancelar</button>
+      <button type="button" class="btn btn--danger" id="confirmYes">Excluir</button>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" popover="manual" role="status" aria-live="polite" hidden><span id="toastMsg"></span><button type="button" id="toastAct" hidden></button></div>
+
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/data-demo.js"></script>
+<script src="../assets/js/data-supabase.js"></script>
+<script src="../assets/js/seed.js"></script>
+<script src="../assets/js/admin.js"></script>
+</body>
+</html>
