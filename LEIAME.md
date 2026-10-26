@@ -1,4 +1,4 @@
-# Lume Moda — loja de roupas com painel do lojista
+# Loja de roupas com painel do lojista (modelo "Minha Loja", identidade SolucionaWeb)
 
 Site estático (HTML, CSS e JS puros, sem build). O lojista cadastra e edita as peças sozinho em `/admin`.
 O pedido fecha por WhatsApp: a sacola monta a mensagem e abre a conversa com a loja.
@@ -109,8 +109,12 @@ O site **não** baixa estoque sozinho, porque a venda fecha no WhatsApp. Depois 
 ## Texto que você adapta por loja
 
 - FAQ da vitrine: lista `FAQ` no começo de `assets/js/site.js`.
-- Os 3 passos "Monte a sacola / Finalize no WhatsApp / Combine o resto": `index.html` (seção `.perks`).
-- Cores e fontes: variáveis no começo de `assets/css/site.css` e `assets/css/admin.css`.
+- Os 3 passos "Monte a sacola / Finalize no WhatsApp / Combine o resto": `index.html` (seção `#como-funciona`).
+- Os 3 destaques do hero ("Entrega rápida para todo o Brasil", "Compra segura", "Qualidade garantida"): `index.html` (lista `.hero__perks`).
+  Vieram do mockup e são promessas da loja: ajuste ou apague as que não valem para o lojista.
+- Identidade visual (SolucionaWeb: preto azulado, roxo neon, Montserrat): variáveis no começo de `assets/css/site.css` e `assets/css/admin.css`.
+- Marca padrão do cabeçalho e do hero (SolucionaWeb): constante `BRAND` no começo de `assets/js/site.js`. Quando o lojista envia a logo
+  dele em Painel > Loja, ela substitui a marca no cabeçalho e no hero. Em Loja também dá para trocar o fundo do hero ("Foto da capa").
 - `og:image`, `og:url` e `<title>` em `index.html`: use endereços absolutos depois que o domínio existir.
 
 ## Arquivos
@@ -125,7 +129,9 @@ assets/js/data-supabase.js driver do Supabase
 assets/js/seed.js         peças de exemplo (só demonstração)
 assets/js/site.js         vitrine, página da peça, sacola, mensagem do WhatsApp
 assets/js/admin.js        painel
-assets/img/demo/          ilustrações das peças de exemplo (geradas por _fontes/gen_demo_svgs.py)
+assets/img/demo/          ilustrações das peças de exemplo, em tons escuros (geradas por _fontes/gen_demo_svgs.py)
+assets/img/hero-bg.webp, logo-s.webp, logo-solucionaweb.webp, favicon.png
+                          identidade SolucionaWeb, gerada do papel de parede neon por _fontes/make_brand_assets.py
 supabase/schema.sql       tabelas, regras de acesso e bucket de fotos
 ```
 

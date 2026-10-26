@@ -16,6 +16,9 @@
     ['Os tamanhos e o estoque estão atualizados?', 'A própria loja atualiza as peças e os tamanhos disponíveis. O que está esgotado aparece marcado.']
   ];
 
+  /* Marca exibida enquanto a loja não enviou a própria logo (Painel > Loja > Logo). */
+  var BRAND = { name: 'SolucionaWeb', lockup: 'assets/img/logo-solucionaweb.webp', mark: 'assets/img/logo-s.webp' };
+
   var KEY = { cart: 'lume_cart_v1', favs: 'lume_favs_v1', co: 'lume_checkout_v1' };
   var ls = {
     get: function (k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
@@ -102,17 +105,19 @@
 
   /* ----------------------------------------------------------------- configurações */
   function applySettings() {
-    var s = S.settings, parts = String(s.store_name).split(' ');
+    var s = S.settings, mark = $('#heroMark');
     document.title = s.store_name + ' — ' + (s.tagline || 'loja de roupas');
-    $('#brand').innerHTML = s.logo_url
-      ? '<img src="' + esc(D.url(s.logo_url)) + '" alt="' + esc(s.store_name) + '">'
-      : '<span class="brand__a">' + esc(parts[0]) + '</span>' + (parts.length > 1 ? '<span class="brand__b">' + esc(parts.slice(1).join(' ')) + '</span>' : '');
+    $('#brand').innerHTML = '<img class="brand__logo" src="' + esc(D.url(s.logo_url || BRAND.lockup)) + '" alt="' + esc(s.logo_url ? s.store_name : BRAND.name) + '">';
     $('#announce').hidden = !s.announcement;
     $('#announceText').textContent = s.announcement;
 
-    $('#heroEyebrow').textContent = s.tagline; $('#heroEyebrow').hidden = !s.tagline;
+    /* hero: logo da loja (ou a marca padrão), nome, frase, e fundo próprio se a loja enviou uma capa */
+    mark.src = D.url(s.logo_url || BRAND.mark);
+    mark.classList.toggle('hero__mark--custom', !!s.logo_url);
     $('#heroTitle').textContent = s.hero_title || s.store_name;
+    $('#heroEyebrow').textContent = s.tagline; $('#heroEyebrow').hidden = !s.tagline;
     $('#heroSub').textContent = s.hero_subtitle; $('#heroSub').hidden = !s.hero_subtitle;
+    $('#hero').style.setProperty('--hero-bg', s.hero_image ? 'linear-gradient(rgba(4,3,10,.55), rgba(4,3,10,.8)), url("' + D.url(s.hero_image) + '")' : '');
 
     var wa = D.waLink(s.whatsapp, 'Olá, ' + s.store_name + '! Vim pelo site e queria tirar uma dúvida.');
     $('#waFloat').hidden = !wa;
@@ -131,19 +136,6 @@
     $('#ftrList').innerHTML = rows.map(function (r) { return '<li><span>' + r[0] + '</span><span>' + r[1] + '</span></li>'; }).join('');
     $('#ftrList').hidden = !rows.length;
     $('#ftrCopy').textContent = '© ' + new Date().getFullYear() + ' ' + s.store_name + '. Todos os direitos reservados.';
-  }
-
-  function renderHero() {
-    var s = S.settings, art = $('#heroArt'), withImg = S.products.filter(function (p) { return p.images.length && !D.soldOut(p); });
-    withImg.sort(function (a, b) { return (b.featured ? 1 : 0) - (a.featured ? 1 : 0); });
-    if (s.hero_image) {
-      art.className = 'hero__art solo';
-      art.innerHTML = '<div class="a"><img src="' + esc(D.url(s.hero_image)) + '" alt=""></div>';
-    } else if (withImg.length) {
-      art.className = 'hero__art' + (withImg.length < 2 ? ' solo' : '');
-      art.innerHTML = '<div class="a"><img src="' + esc(src(withImg[0])) + '" alt=""></div>' +
-        (withImg[1] ? '<div class="b"><img src="' + esc(src(withImg[1])) + '" alt=""></div>' : '');
-    } else { art.innerHTML = ''; art.hidden = true; }
   }
 
   function renderFaq() {
@@ -175,10 +167,15 @@
     return ok.concat(out);
   }
 
-  function renderNav() {
-    $('#nav').innerHTML = S.cats.slice(0, 5).map(function (c) {
-      return '<button type="button" data-act="cat" data-cat="' + esc(c) + '">' + esc(c) + '</button>';
-    }).join('');
+  /* menu do topo (Início, Produtos, Sobre): destaca a seção que está na tela */
+  function spy() {
+    var y = window.scrollY + window.innerHeight * 0.35, cur = 'top';
+    ['colecao', 'sobre'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el && el.getBoundingClientRect().top + window.scrollY <= y) cur = id;
+    });
+    if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 4) cur = 'sobre';
+    $$('#nav a').forEach(function (a) { a.classList.toggle('is-on', a.getAttribute('data-nav') === cur); });
   }
 
   function renderChips() {
@@ -654,7 +651,8 @@
   });
 
   /* topo fixo e links por hash */
-  window.addEventListener('scroll', function () { $('#hdr').classList.toggle('is-stuck', window.scrollY > 8); }, { passive: true });
+  window.addEventListener('scroll', function () { $('#hdr').classList.toggle('is-stuck', window.scrollY > 8); spy(); }, { passive: true });
+  window.addEventListener('resize', spy);
   window.addEventListener('hashchange', function () {
     var m = /^#p=(.+)$/.exec(location.hash);
     if (m) openPdp(decodeURIComponent(m[1]));
@@ -676,7 +674,7 @@
       var co = ls.get(KEY.co, null); if (co) S.co = Object.assign(S.co, co);
       computeCats();
       showDemoStrip();
-      applySettings(); renderHero(); renderNav(); renderFaq();
+      applySettings(); renderFaq();
       if (reconcile()) ls.set(KEY.cart, S.cart);
       syncCheckout(); updateFavUi(); updateBagUi(); refreshShop();
       var m = /^#p=(.+)$/.exec(location.hash);

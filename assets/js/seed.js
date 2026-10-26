@@ -2,16 +2,16 @@
    Não vão para o Supabase: lá o lojista cadastra as peças reais pelo painel. */
 window.LUME_SEED = {
   settings: {
-    store_name: 'Lume Moda',
-    tagline: 'Básicos com caimento certo',
+    store_name: 'Minha Loja',
+    tagline: 'Estilo que combina com você',
     whatsapp: '',
     instagram: '',
     address: '',
     hours: '',
-    announcement: 'Frete grátis em compras acima de R$ 250',
+    announcement: '',
     free_shipping_min: 250,
-    hero_title: 'Menos, mas melhor.',
-    hero_subtitle: 'Peças atemporais para usar todo dia, com caimento que faz sentido.',
+    hero_title: '',
+    hero_subtitle: '',
     hero_image: '',
     logo_url: ''
   },

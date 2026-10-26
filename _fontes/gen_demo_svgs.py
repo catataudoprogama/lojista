@@ -21,7 +21,9 @@ def stroke(d, c, w=2.2, extra=''):
 
 
 def body(d, c):
-    return f'<path d="{d}" fill="{c}"/><path d="{d}" fill="url(#g)"/>'
+    # contorno lilás suave: separa a peça do fundo escuro e dá o ar "neon" da identidade
+    return (f'<path d="{d}" fill="{c}"/><path d="{d}" fill="url(#g)"/>'
+            f'<path d="{d}" fill="none" stroke="#C4A1FF" stroke-opacity=".5" stroke-width="1.6" stroke-linejoin="round"/>')
 
 
 def tee(c):
@@ -122,28 +124,29 @@ def tote(c):
 
 # chave -> (função, cor da peça, fundo, fundo do detalhe, recorte do detalhe "x y w h")
 PIECES = {
-    'camiseta-essencial': (tee, '#ECE8DE', '#E4DED2', '#D8D1C3', '96 56 208 260'),
-    'camiseta-oversized': (oversized, '#2A2A2B', '#DDDAD3', '#CFCBC2', '84 52 232 290'),
-    'regata-canelada': (tank, '#F1EEE6', '#D9D3C6', '#CBC4B4', '104 38 192 240'),
-    'camisa-linho': (shirt, '#C9B79A', '#E7E2D8', '#DAD3C5', '96 66 208 260'),
-    'moletom-canguru': (hoodie, '#A6A6A4', '#E2DDD3', '#D3CDC1', '84 20 232 290'),
-    'calca-alfaiataria': (pants, '#1F1F21', '#DAD5CA', '#CCC6B8', '104 36 192 240'),
-    'calca-wide-leg': (widelegs, '#CDBFA6', '#E5E0D5', '#D6CFC0', '92 36 216 270'),
-    'bermuda-linho': (shorts, '#8AA3B4', '#E3DED3', '#D5CFC2', '88 124 224 280'),
-    'short-alfaiataria': (shorts, '#F0EDE6', '#D6D0C3', '#C8C1B2', '88 124 224 280'),
-    'vestido-slip': (dress, '#BFA98A', '#E6E0D6', '#D9D1C3', '120 36 160 200'),
-    'jaqueta-sarja': (jacket, '#A6784E', '#E4DFD4', '#D6D0C2', '96 70 208 260'),
-    'bolsa-tote': (tote, '#E3DCCB', '#D9D3C6', '#CCC5B4', '84 90 232 290'),
+    'camiseta-essencial': (tee, '#ECE8DE', '#3B2070', '#2E1860', '96 56 208 260'),
+    'camiseta-oversized': (oversized, '#3B3B4A', '#3A1F6E', '#2C1757', '84 52 232 290'),
+    'regata-canelada': (tank, '#F1EEE6', '#34196C', '#291454', '104 38 192 240'),
+    'camisa-linho': (shirt, '#C9B79A', '#3F2278', '#321A66', '96 66 208 260'),
+    'moletom-canguru': (hoodie, '#A6A6B2', '#3C2074', '#2F1962', '84 20 232 290'),
+    'calca-alfaiataria': (pants, '#35353F', '#33196A', '#281450', '104 36 192 240'),
+    'calca-wide-leg': (widelegs, '#CDBFA6', '#3A1E70', '#2D1760', '92 36 216 270'),
+    'bermuda-linho': (shorts, '#8AA3B4', '#38206E', '#2B165A', '88 124 224 280'),
+    'short-alfaiataria': (shorts, '#F0EDE6', '#321868', '#271350', '88 124 224 280'),
+    'vestido-slip': (dress, '#BFA98A', '#3E2276', '#311A64', '120 36 160 200'),
+    'jaqueta-sarja': (jacket, '#B08052', '#3B2072', '#2E1860', '96 70 208 260'),
+    'bolsa-tote': (tote, '#E3DCCB', '#341A6A', '#291452', '84 90 232 290'),
 }
 
 
 def svg(view, bg, inner, transform, floor_shadow):
-    shadow = '<ellipse cx="200" cy="476" rx="118" ry="9" fill="#000" opacity=".07"/>' if floor_shadow else ''
+    shadow = '<ellipse cx="200" cy="476" rx="118" ry="9" fill="#8B2CF5" opacity=".35"/>' if floor_shadow else ''
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{view}" preserveAspectRatio="xMidYMid slice">'
             '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">'
-            '<stop offset="0" stop-color="#fff" stop-opacity=".2"/><stop offset="1" stop-color="#000" stop-opacity=".11"/>'
-            '</linearGradient></defs>'
-            f'<rect x="-200" y="-200" width="800" height="900" fill="{bg}"/>{shadow}<g transform="{transform}">{inner}</g></svg>')
+            '<stop offset="0" stop-color="#fff" stop-opacity=".2"/><stop offset="1" stop-color="#000" stop-opacity=".14"/>'
+            '</linearGradient>'
+            f'<radialGradient id="bgr" cx=".5" cy=".42" r=".8"><stop offset="0" stop-color="{bg}"/><stop offset="1" stop-color="#0A0618"/></radialGradient></defs>'
+            f'<rect x="-200" y="-200" width="800" height="900" fill="url(#bgr)"/>{shadow}<g transform="{transform}">{inner}</g></svg>')
 
 
 for key, (fn, color, bg1, bg2, crop) in PIECES.items():
@@ -151,8 +154,4 @@ for key, (fn, color, bg1, bg2, crop) in PIECES.items():
     open(os.path.join(OUT, f'{key}-1.svg'), 'w', encoding='utf-8').write(svg('0 0 400 500', bg1, inner, tr, True))
     open(os.path.join(OUT, f'{key}-2.svg'), 'w', encoding='utf-8').write(svg(crop, bg2, inner, tr, False))
 
-# favicon: quadrado de tinta com um ponto de luz
-open(os.path.join(OUT, '..', 'favicon.svg'), 'w', encoding='utf-8').write(
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#141414"/>'
-    '<circle cx="16" cy="16" r="6" fill="#F5F3EE"/></svg>')
 print('ok', len(PIECES) * 2, 'svgs')
